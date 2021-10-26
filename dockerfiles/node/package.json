@@ -1,0 +1,16 @@
+{
+  "name": "app-node-docker",
+  "version": "1.0.0",
+  "description": "Example Curso Docker with Node",
+  "main": "main.js",
+  "dependencies": {
+    "express": "^4.15.3",
+    "nodemon": "^1.11.0"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nodemon main.js"
+  },
+  "author": "Carlos Ferreira <carlos@especializati.com.br>",
+  "license": "ISC"
+}
