@@ -1,0 +1,76 @@
+version: "3.8"
+
+services:
+  # custom image
+  app:
+    build:
+      args:
+        user: carlos
+        uid: 1000
+      context: ./
+      dockerfile: Dockerfile
+    image: especializati/laravel-app
+    working_dir: /var/www/
+    volumes:
+      - ./:/var/www/
+    restart: unless-stopped
+    depends_on:
+      - redis
+      - queue
+    networks:
+      - docker-laravel
+  
+  #nginx
+  nginx:
+    image: nginx:alpine
+    restart: always
+    ports:
+      - 80:80
+    volumes:
+      - ./:/var/www
+      - ./docker/nginx/:/etc/nginx/conf.d/
+    networks:
+      - docker-laravel
+
+  # db
+  mysql:
+    image: mysql:5.7.22
+    restart: always
+    ports:
+      - 3307:3306
+    volumes:
+      - ./.docker/mysql:/var/lib/mysql
+    environment:
+      MYSQL_DATABASE: ${DB_DATABASE}
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+      MYSQL_USER: ${DB_USERNAME}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+    networks:
+      - docker-laravel
+  
+  # redis
+  redis:
+    image: redis:latest
+    networks:
+      - docker-laravel
+
+  # queue
+  queue:
+    build:
+      args:
+        user: carlos
+        uid: 1000
+      context: ./
+      dockerfile: Dockerfile
+    restart: always
+    command: "php artisan queue:work"
+    volumes:
+      - ./:/var/www
+    depends_on:
+      - redis
+    networks:
+      - docker-laravel
+
+networks:
+  docker-laravel:
+    driver: bridge
